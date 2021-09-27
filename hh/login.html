@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0, ser-scalable=no">
+		<link rel="stylesheet" type="text/css" href="css/reset.css"/>
+		<script type="text/javascript" src="js/jquery-3.2.1.js"></script>
+		<title></title>
+		<style type="text/css">
+			html { background: #efefef; }
+			p { position: relative;height: 1rem;width: 90%; margin: 0 auto;border-bottom: 1px solid lightgray; }
+			p input { outline: none;text-indent: 0.4rem;font-size: 0.3rem;height: 100%;width: 100%;background: rgba(0,0,0,0); }
+			p span { display: inline-block;font-size: 0.3rem;color: gray;position: absolute;top: 0.35rem;right: 0.3rem; }
+			div { width: 80%;height: 1rem;line-height: 1rem;text-align: center;background: #D81E06;color: #fff;font-size: 0.3rem;margin: 0.5rem auto 0;border-radius: 0.1rem; }
+			i { width: 100%;text-align: center;display: inline-block;color: gray;margin-top: 0.4rem; }
+			i wet { color: blue; }
+		</style>
+	</head>
+	<body>
+		<form id="form1">
+		<p style="padding-top: 2rem;">
+			<input type="number" value=""  id="phone" name="phone" placeholder="请输入手机号" />
+		</p>
+		<p>
+			<input type="number" id="code"  name="code" placeholder="请输入验证码" />
+			<span id="sendSms" onclick="sendMessage()">获取验证码</input>
+		</p>
+		<div id="login">登录</div>
+		<i>点击登录，即表示已阅读并同意<wet>《车友援服务协议》</wet></i>
+		</form>
+	 
+	</body>
+	
+	<script>
+		 $(function() {
+			   $("#sendSms").click(function(){
+
+				   $.ajax({
+					   type: 'get',
+					   url: 'http://127.0.0.1:8080/api/customer/sendCodeNum',
+					   data: {
+						   "phoneNum":$("#phone").val()
+					   },
+					   dataType: 'json',
+					   success: function(res) {
+						   if (res.code ==0) {
+							alert("验证码已发送到手机上了");
+							//续上 作业二,让验证码形成倒计时
+							let count = 120; //let声明一个局部变量
+      						 const countDown = setInterval(() => {
+           					 if (count === 0) {
+              					$('#sendSms').text('重新发送').removeAttr('disabled');
+              					$('#sendSms').css({
+              			});
+              				clearInterval(countDown);
+           			 } else {
+              				$('#sendSms').attr('disabled', true);
+              				$('#sendSms').text(count + '秒后可重新获取');
+			 		 		$('#sendSms').unbind('click'); //移除点击事件
+           				 }
+            			count--;
+         			 }, 1000);
+						   }else{
+							   alert("发送失败了")
+						   }
+					   },
+				   })
+			   })
+
+		$("#login").click(function(){
+			$.ajax({
+				type: 'get',
+				url: 'http://127.0.0.1:8080/api/customer/customerLogin',
+				data: {
+					"phoneNum":$("#phone").val(),
+					"codeNum":$("#code").val()
+				},
+				dataType: 'json',
+				success: function(res) {
+					if (res.code == 0) {
+						//登录成功，跳转到首页
+						alert("登录成功，跳转到首页")
+					}else{
+						alert("验证码不对啊！！")
+					}
+				},
+			})
+		})
+
+		 });
+	</script>
+
+
+	 
+ 
+</html>
